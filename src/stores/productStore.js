@@ -53,6 +53,7 @@ export const useProductStore = defineStore('productStore', {
           throw error;
         }
         this.products = data;
+        console.log('Productos cargados:', data);
       } catch (err) {
         this.error = err.message;
         console.error('Error trayendo productos:', err.message);
@@ -72,11 +73,12 @@ export const useProductStore = defineStore('productStore', {
       try {
         const { data, error } = await supabase
           .from('categories')
-          .select('id, name');
+          .select('id, name, icon');
         if (error) {
           throw error;
         }
         this.categories = data;
+        console.log('Categorias cargadss:', data);
       } catch (err) {
         this.error = err.message;
         console.error('Error Trayendo Categorías:', err.message);
