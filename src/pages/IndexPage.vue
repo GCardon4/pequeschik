@@ -1,5 +1,30 @@
 <template>
-  <q-page class="q-pa-md q-pt-lg">
+  <q-page class="q-pt-lg">
+
+    <!-- Menú de Filtros de categoría -->
+    <div class="row menu-filtres justify-around text-center">
+      <div class="col col-md-4">
+        <q-btn
+          class="btn-filter"
+          icon="child_hat"
+          label="Niños"
+         />
+      </div>
+      <div class="col col-md-4">
+        <q-btn
+          class="btn-filter"
+          icon="child_hat"
+          label="Niñas"
+         />
+      </div>
+      <div class="col col-md-4">
+        <q-btn
+          class="btn-filter"
+          icon="child_hat"
+          label="Accesorios"
+         />
+      </div>
+    </div>
 
     <!-- Filtros de categoría -->
     <div class="row q-col-gutter-md justify-around q-mb-xl">
