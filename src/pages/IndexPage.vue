@@ -24,7 +24,7 @@
       <q-card
         v-for="product in productStore.getFilteredProducts"
         :key="product.id"
-        class="q-mb-md q-pa-md"
+        class="q-mb-md q-pa-md q-mt-lg product-card"
         flat
         bordered
         style="max-width: 600px; width: 100%;"
@@ -43,13 +43,15 @@
             <div class="text-caption text-grey">
               {{ product.description }}
             </div>
+
             <div class="text-subtitle1 text-bold q-mt-sm">
               {{ formatCurrency(product.price) }}
+              <div class="row justify-end">
+                <q-btn flat round icon="favorite_border" color="pink" class="icon-product"/>
+                  <q-btn flat round icon="shopping_cart" color="primary" class="icon-product"/>
+              </div>
             </div>
-            <div class="row justify-end q-gutter-sm q-mt-sm">
-              <q-btn flat round icon="favorite_border" color="pink" />
-              <q-btn flat round icon="shopping_cart" color="primary" />
-            </div>
+            
           </div>
         </div>
       </q-card>
