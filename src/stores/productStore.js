@@ -38,7 +38,7 @@ export const useProductStore = defineStore('productStore', {
   },
   actions: {
     /**
-     * Fetches all products from the 'products' table in Supabase, including category details.
+     * Fetches all products from the 'products' table in Supabase, including category details and handles default image if avatar_url is empty.
      * @async
      * @returns {Promise<void>}
      */
@@ -52,8 +52,14 @@ export const useProductStore = defineStore('productStore', {
         if (error) {
           throw error;
         }
-        this.products = data;
-        console.log('Productos cargados:', data);
+
+        const defaultImageUrl = 'https://vssnhqhfasirinocufbs.supabase.co/storage/v1/object/public/Products/Avatar/avatar-img.png'; // Defualt Image
+
+        this.products = data.map(product => ({
+          ...product,
+          avatar_url: product.avatar_url || defaultImageUrl,
+        }));
+        console.log('Productos cargados:', this.products);
       } catch (err) {
         this.error = err.message;
         console.error('Error trayendo productos:', err.message);
