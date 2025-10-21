@@ -67,7 +67,7 @@ const categories = [
   { label: 'Accesorios', value: 'accesorios' }
 ]
 
-const selectedCategory = ref('ninos')
+const selectedCategory = ref('ninas')
 const products = ref([])
 
 // Filtro computado
