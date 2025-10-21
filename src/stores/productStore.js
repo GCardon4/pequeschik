@@ -48,14 +48,14 @@ export const useProductStore = defineStore('productStore', {
       try {
         const { data, error } = await supabase
           .from('products')
-          .select('*, category:categories(id, name, icon)'); // Fetch category details
+          .select('*, category:categories(id, name)'); // Fetch category details
         if (error) {
           throw error;
         }
         this.products = data;
       } catch (err) {
         this.error = err.message;
-        console.error('Error fetching products:', err.message);
+        console.error('Error trayendo productos:', err.message);
       } finally {
         this.loading = false;
       }
@@ -72,14 +72,14 @@ export const useProductStore = defineStore('productStore', {
       try {
         const { data, error } = await supabase
           .from('categories')
-          .select('id, name, icon');
+          .select('id, name');
         if (error) {
           throw error;
         }
         this.categories = data;
       } catch (err) {
         this.error = err.message;
-        console.error('Error fetching categories:', err.message);
+        console.error('Error Trayendo Categorías:', err.message);
       } finally {
         this.loading = false;
       }
