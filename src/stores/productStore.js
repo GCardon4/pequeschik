@@ -78,7 +78,7 @@ export const useProductStore = defineStore('productStore', {
           throw error;
         }
         this.categories = data;
-        console.log('Categorias cargadss:', data);
+        console.log('Categorias cargadas:', data);
       } catch (err) {
         this.error = err.message;
         console.error('Error Trayendo Categorías:', err.message);
