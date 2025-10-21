@@ -1,60 +1,28 @@
 <template>
-<<<<<<< HEAD
-  <q-page class="flex flex-center">
-      <div class="q-pa-md q-gutter-sm">
-      <q-btn outline rounded color="primary" label="Niños" />
-      <q-btn outline rounded color="primary" label="Niñas" />
-      <q-btn outline rounded color="primary" label="Accesorios" />
-    </div>
-    
-=======
   <q-page class="q-pt-lg">
 
     <!-- Menú de Filtros de categoría -->
     <div class="row menu-filtres justify-around text-center">
-      <div class="col col-md-4">
+      <div
+        v-for="cat in productStore.getAllCategories"
+        :key="cat.id"
+        class="col col-md-4"
+      >
         <q-btn
           class="btn-filter"
-          icon="child_hat"
-          label="Niños"
-         />
+          :icon="cat.icon"
+          :label="cat.name"
+          @click="filterCategory(cat.id)"
+          :flat="productStore.selectedCategory !== cat.id"
+          :unelevated="productStore.selectedCategory === cat.id"
+        />
       </div>
-      <div class="col col-md-4">
-        <q-btn
-          class="btn-filter"
-          icon="child_hat"
-          label="Niñas"
-         />
-      </div>
-      <div class="col col-md-4">
-        <q-btn
-          class="btn-filter"
-          icon="child_hat"
-          label="Accesorios"
-         />
-      </div>
-    </div>
-
-    <!-- Filtros de categoría -->
-    <div class="row q-col-gutter-md justify-around q-mb-xl">
-      <q-btn
-        v-for="cat in categories"
-        :key="cat.value"
-        :label="cat.label"
-        icon="child_hat"
-        color="teal-7"
-        class="q-pa-lg text-white"
-        rounded
-        @click="filterCategory(cat.value)"
-        :flat="selectedCategory !== cat.value"
-        :unelevated="selectedCategory === cat.value"
-      />
     </div>
 
     <!-- Lista de productos -->
     <div class="column items-center">
       <q-card
-        v-for="product in filteredProducts"
+        v-for="product in productStore.getFilteredProducts"
         :key="product.id"
         class="q-mb-md q-pa-md"
         flat
@@ -87,38 +55,24 @@
       </q-card>
     </div>
 
->>>>>>> refs/remotes/origin/master
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { supabase } from 'src/config/supabase' // si usas Supabase
+import { computed, onMounted } from 'vue'
+import { useProductStore } from 'src/stores/productStore'
 
-// Categorías disponibles
-const categories = [
-  { label: 'Niños', value: 'ninos' },
-  { label: 'Niñas', value: 'ninas' },
-  { label: 'Accesorios', value: 'accesorios' }
-]
-
-const selectedCategory = ref('ninas')
-const products = ref([])
-
-// Filtro computado
-const filteredProducts = computed(() =>
-  products.value.filter(p => p.category === selectedCategory.value)
-)
+const productStore = useProductStore()
 
 // Función para filtrar
-const filterCategory = cat => {
-  selectedCategory.value = cat
+const filterCategory = catId => {
+  productStore.setSelectedCategory(catId)
 }
 
-// Cargar productos desde Supabase
-onMounted(async () => {
-  const { data, error } = await supabase.from('products').select('*')
-  if (!error) products.value = data
+// Cargar productos y categorías desde el store
+onMounted(() => {
+  productStore.fetchAllProducts()
+  productStore.fetchAllCategories()
 })
 
 // Formatear precios
