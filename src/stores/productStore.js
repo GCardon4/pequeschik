@@ -53,7 +53,7 @@ export const useProductStore = defineStore('productStore', {
           throw error;
         }
 
-        const defaultImageUrl = 'https://vssnhqhfasirinocufbs.supabase.co/storage/v1/object/public/Products/Avatar/avatar-img.png'; // Defualt Image
+        const defaultImageUrl = 'https://vssnhqhfasirinocufbs.supabase.co/storage/v1/object/public/Products/Avatar/avatar-img-default.png'; // Defualt Image
 
         this.products = data.map(product => ({
           ...product,
