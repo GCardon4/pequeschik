@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useProductStore } from 'src/stores/productStore'
 
 const productStore = useProductStore()
