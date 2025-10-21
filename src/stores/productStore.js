@@ -69,7 +69,7 @@ export const useProductStore = defineStore('productStore', {
     },
 
     /**
-     * Fetches all categories from the 'categories' table in Supabase.
+     * Fetches all categories from the 'categories' table in Supabase and orders them by the 'index' field.
      * @async
      * @returns {Promise<void>}
      */
@@ -79,7 +79,8 @@ export const useProductStore = defineStore('productStore', {
       try {
         const { data, error } = await supabase
           .from('categories')
-          .select('id, name, icon');
+          .select('id, name, icon')
+          .order('id', { ascending: true }); // Order by ID
         if (error) {
           throw error;
         }
