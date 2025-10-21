@@ -16,9 +16,15 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",
+<<<<<<< HEAD
     "axios": "^1.2.1",
     "firebase": "^12.4.0",
+=======
+    "@supabase/supabase-js": "^2.76.0",
+    "axios": "^1.2.1",
+>>>>>>> refs/remotes/origin/master
     "quasar": "^2.16.0",
+    "supabase": "^2.51.0",
     "vue": "^3.5.22",
     "vue-router": "^4.0.0"
   },
