@@ -49,7 +49,7 @@ const props = defineProps({
   },
   routeName: {
     type: String,
-    default: '',
+    default: 'admin',
   },
 })
 </script>

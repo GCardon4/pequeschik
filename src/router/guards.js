@@ -21,7 +21,7 @@ export const redirectIfLoggedIn = async (to, from, next) => {
   if (auth.user) {
     await auth.loadProfile()
     if (auth.userRole === 'admin') {
-      return next({ name: 'admin-dashboard' })
+      return next({ name: 'admin' })
     } else {
       return next({ name: 'home' })
     }
