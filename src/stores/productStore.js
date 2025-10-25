@@ -5,6 +5,7 @@ export const useProductStore = defineStore('productStore', {
   state: () => ({
     products: [],
     categories: [],
+    selectedProduct: null,
     selectedCategory: null,
     loading: false,
     error: null,
@@ -33,7 +34,9 @@ export const useProductStore = defineStore('productStore', {
       if (!state.selectedCategory) {
         return state.products;
       }
-      return state.products.filter(product => product.category.id === state.selectedCategory);
+      return state.products.filter(
+        (product) => product.category.id === state.selectedCategory
+      );
     },
   },
   actions: {
@@ -53,9 +56,10 @@ export const useProductStore = defineStore('productStore', {
           throw error;
         }
 
-        const defaultImageUrl = 'https://vssnhqhfasirinocufbs.supabase.co/storage/v1/object/public/Products/Avatar/avatar-img-default.png'; // Defualt Image
+        const defaultImageUrl =
+          'https://vssnhqhfasirinocufbs.supabase.co/storage/v1/object/public/Products/Avatar/avatar-img-default.png'; // Defualt Image
 
-        this.products = data.map(product => ({
+        this.products = data.map((product) => ({
           ...product,
           avatar_url: product.avatar_url || defaultImageUrl,
         }));
@@ -63,6 +67,92 @@ export const useProductStore = defineStore('productStore', {
       } catch (err) {
         this.error = err.message;
         console.error('Error trayendo productos:', err.message);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * Fetches a single product by its ID from the 'products' table in Supabase.
+     * @async
+     * @param {string} productId The ID of the product to fetch.
+     * @returns {Promise<void>}
+     */
+    async fetchProductById(productId) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*, category:categories(id, name)')
+          .eq('id', productId)
+          .single();
+        if (error) {
+          throw error;
+        }
+        this.selectedProduct = data;
+      } catch (err) {
+        this.error = err.message;
+        console.error('Error fetching product:', err.message);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * Creates a new product in the 'products' table in Supabase.
+     * @async
+     * @param {object} productData The data of the product to create.
+     * @returns {Promise<object>} The newly created product.
+     */
+    async createProduct(productData) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .insert(productData)
+          .select()
+          .single();
+        if (error) {
+          throw error;
+        }
+        this.products.push(data);
+        return data;
+      } catch (err) {
+        this.error = err.message;
+        console.error('Error creating product:', err.message);
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * Updates a product in the 'products' table in Supabase.
+     * @async
+     * @param {object} productData The data of the product to update.
+     * @returns {Promise<void>}
+     */
+    async updateProduct(productData) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', productData.id);
+        if (error) {
+          throw error;
+        }
+        // Update the local products array
+        const index = this.products.findIndex((p) => p.id === productData.id);
+        if (index !== -1) {
+          this.products[index] = { ...this.products[index], ...data[0] };
+        }
+      } catch (err) {
+        this.error = err.message;
+        console.error('Error updating product:', err.message);
       } finally {
         this.loading = false;
       }
