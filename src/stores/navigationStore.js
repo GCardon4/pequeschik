@@ -9,7 +9,18 @@ export const useNavigationStore = defineStore('navigation', {
         icon: 'dashboard',
         routeName: 'admin-dashboard',
       },
-      // Aquí se pueden añadir más enlaces para el administrador
+      {
+        title: 'Productos',
+        caption: 'Gestión de productos',
+        icon: 'shopping_bag',
+        routeName: 'product-list',
+      },
+      {
+        title: 'Usuarios',
+        caption: 'Gestión de usuarios',
+        icon: 'people',
+        routeName: 'user-list',
+      },
     ],
   }),
 
