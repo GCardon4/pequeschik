@@ -15,3 +15,16 @@ export const roleGuard = (rolesPermitidos) => (to, from, next) => {
   }
   next()
 }
+
+export const redirectIfLoggedIn = async (to, from, next) => {
+  const auth = useAuthStore()
+  if (auth.user) {
+    await auth.loadProfile()
+    if (auth.userRole === 'admin') {
+      return next({ name: 'admin-dashboard' })
+    } else {
+      return next({ name: 'home' })
+    }
+  }
+  next()
+}
