@@ -81,12 +81,3 @@ onMounted(() => {
 const formatCurrency = val =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(val)
 </script>
-
-<style scoped>
-.text-primary {
-  color: #4c8b87;
-}
-.q-btn {
-  width: 180px;
-}
-</style>
