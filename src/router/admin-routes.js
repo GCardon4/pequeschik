@@ -1,7 +1,7 @@
 export default [
   {
     path: '',
-    name: 'admin',
+    name: 'admin-dashboard',
     component: () => import('pages/admin/DashboardPage.vue'),
     meta: {
       title: 'Dashboard',
@@ -11,7 +11,7 @@ export default [
   },
 
   // 🛍️ CRUD Productos
-  /*{
+  {
     path: 'products',
     name: 'product-list',
     component: () => import('pages/admin/products/ProductListPage.vue'),
@@ -73,5 +73,5 @@ export default [
     name: 'access-denied',
     component: () => import('pages/errors/AccessDeniedPage.vue'),
     meta: { title: 'Acceso Denegado' },
-  },   */
+  },
 ]

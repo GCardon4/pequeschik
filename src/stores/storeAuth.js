@@ -7,6 +7,12 @@ export const useAuthStore = defineStore('auth', {
     profile: null,
   }),
 
+  getters: {
+    userRole(state) {
+      return state.profile?.role || 'admin'
+    },
+  },
+
   actions: {
     async login(email, password) {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
@@ -30,10 +36,6 @@ export const useAuthStore = defineStore('auth', {
       await supabase.auth.signOut()
       this.user = null
       this.profile = null
-    },
-
-    get userRole() {
-      return this.profile?.role || 'guest'
     },
   },
 })
