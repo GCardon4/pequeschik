@@ -32,7 +32,7 @@
         <div class="row items-center q-col-gutter-md">
           <div class="col-4">
             <q-img
-              :src="product.image"
+              :src="product.avatar_url"
               ratio="1"
               class="rounded-borders"
               spinner-color="teal"
