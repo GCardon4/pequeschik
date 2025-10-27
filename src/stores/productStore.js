@@ -145,6 +145,7 @@ export const useProductStore = defineStore('productStore', {
         if (error) {
           throw error;
         }
+        
         // Update the local products array
         const index = this.products.findIndex((p) => p.id === productData.id);
         if (index !== -1) {

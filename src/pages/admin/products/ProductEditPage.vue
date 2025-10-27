@@ -77,11 +77,6 @@ const route = useRoute();
 const router = useRouter();
 
 /**
- * @type {object}
- * @property {object} productStore - The product store.
- * @property {object} selectedProduct - The selected product.
- * @property {Array} categories - The list of categories.
- * @property {boolean} loading - The loading status.
  */
 const productStore = useProductStore();
 const { selectedProduct, categories } = storeToRefs(productStore);
