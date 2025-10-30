@@ -1,199 +1,225 @@
 <template>
-  <q-page padding>
-    <div class="container">
-      <div class="row">
-        <div class="col-12">
-          <h1 class="text-h4">Edit Product</h1>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12">
-          <q-form @submit="onSubmit" class="q-gutter-md">
+  <q-page class="q-pa-md">
+    <div class="text-h4 q-mb-md">Editar Producto</div>
+
+    <q-card v-if="productForm">
+      <q-card-section>
+        <q-form @submit.prevent="onSubmit" class="q-gutter-md">
+          <!-- Campo del Nombre -->
+          <q-input
+            v-model="productForm.name"
+            label="Nombre del Producto"
+            filled
+            lazy-rules
+            :rules="[(val) => !!val || 'El nombre es requerido']"
+          />
+
+          <!-- Campo de la Referencia -->
+          <q-input
+            v-model="productForm.reference"
+            label="Referencia"
+            filled
+            lazy-rules
+            :rules="[(val) => !!val || 'La referencia es requerida']"
+          />
+
+          <!-- Campo de la Categoría (Corregido) -->
+          <q-select
+            v-model="productForm.category"
+            :options="categories"
+            option-label="name"
+            label="Categoría"
+            filled
+            lazy-rules
+            :rules="[(val) => !!val || 'La categoría es requerida']"
+          />
+
+          <!-- Nuevos Campos -->
+          <q-input
+            v-model="productForm.subcategory"
+            label="Subcategoría"
+            filled
+            placeholder="Ej: Camisetas, Pantalones"
+          />
+
+          <q-input
+            v-model="productForm.sizes"
+            label="Tallas"
+            filled
+            placeholder="Ej: S, M, L, XL"
+          />
+
+          <div class="row q-gutter-md">
             <q-input
-              v-model="productForm.name"
-              label="Name"
+              v-model.number="productForm.price"
+              label="Precio"
+              type="number"
               filled
-              lazy-rules
-              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+              prefix="COP $"
+              class="col"
+              :rules="[(val) => val >= 0 || 'El precio no puede ser negativo']"
             />
+
             <q-input
-              v-model="productForm.reference"
-              label="Reference"
+              v-model.number="productForm.stock"
+              label="Stock"
+              type="number"
               filled
-              lazy-rules
-              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-            />
-            <q-file
-              v-model="avatarFile"
-              label="Avatar Image"
-              filled
-              accept="image/*"
-            />
-            <div v-if="imagePreviewUrl" class="q-mt-md">
-              <q-img
-                :src="imagePreviewUrl"
-                style="max-width: 200px; max-height: 200px"
-                contain
-              />
-            </div>
-            <q-select
-              v-model="productForm.category_id"
-              :options="categoryOptions"
-              label="Category"
-              filled
-              emit-value
-              map-options
-            />
-            <q-editor
-              v-model="productForm.description"
-              min-height="5rem"
-              :toolbar="[
-                ['bold', 'italic', 'strike', 'underline'],
-                ['hr', 'link'],
-                ['unordered', 'ordered'],
-                ['viewsource'],
+              class="col"
+              :rules="[
+                (val) => val >= 0 || 'El stock no puede ser negativo',
+                (val) =>
+                  /^\d+$/.test(val) || 'El stock debe ser un número entero',
               ]"
             />
-            <div>
-              <q-btn label="Update Product" type="submit" color="primary" />
-            </div>
-          </q-form>
-        </div>
-      </div>
-    </div>
+          </div>
+
+          <!-- Sección del Avatar -->
+          <div class="text-subtitle1 q-mt-md">Avatar del Producto</div>
+          <div class="row items-center q-gutter-md">
+            <q-file
+              ref="fileInputRef"
+              v-model="avatarFile"
+              label="Seleccionar nueva imagen"
+              accept="image/*"
+              filled
+              style="max-width: 300px"
+              @update:model-value="handleFileSelection"
+            >
+              <template v-slot:prepend>
+                <q-icon name="attach_file" />
+              </template>
+            </q-file>
+
+            <q-avatar
+              v-if="imagePreviewUrl"
+              size="100px"
+              class="cursor-pointer"
+              @click="triggerFileInput"
+            >
+              <q-img :src="imagePreviewUrl" ratio="1" />
+            </q-avatar>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="q-mt-lg">
+            <q-btn
+              label="Actualizar Producto"
+              type="submit"
+              color="primary"
+              :loading="loading"
+            />
+            <q-btn
+              label="Cancelar"
+              color="grey"
+              class="q-ml-sm"
+              :to="{ name: 'product-list' }"
+            />
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
+
+    <q-inner-loading :showing="loading || !productForm">
+      <q-spinner-gears size="50px" color="primary" />
+    </q-inner-loading>
   </q-page>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useProductStore } from 'src/stores/productStore';
-import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
+import { useProductStore } from 'src/stores/productStore';
 
-/**
- * @type {object}
- * @property {function} notify - The Quasar notify function.
- */
-const $q = useQuasar();
-
-/**
- * @type {object}
- * @property {object} params - The route params.
- */
+// --- Composables ---
 const route = useRoute();
-
-/**
- * @type {object}
- * @property {function} push - The router push function.
- */
 const router = useRouter();
-
-/**
- */
+const $q = useQuasar();
 const productStore = useProductStore();
-const { selectedProduct, categories } = storeToRefs(productStore);
 
+// --- State ---
+const productForm = ref(null);
 const avatarFile = ref(null);
+const fileInputRef = ref(null);
 
-/**
- * @type {import('vue').Ref<object>}
- * @property {string} name - The product name.
- * @property {string} reference - The product reference.
- * @property {string} avatar_url - The product avatar URL.
- * @property {number|null} category_id - The product category ID.
- * @property {string} description - The product description.
- */
-const productForm = ref({
-  name: '',
-  reference: '',
-  avatar_url: '',
-  category_id: null,
-  description: '',
-});
-
-/**
- * @type {import('vue').ComputedRef<string>}
- * @returns {string} The URL for the image preview.
- */
+// --- Getters and Computed Properties ---
+const loading = computed(() => productStore.getLoadingStatus);
+const categories = computed(() => productStore.getAllCategories);
 const imagePreviewUrl = computed(() => {
   if (avatarFile.value) {
     return URL.createObjectURL(avatarFile.value);
   }
-  return productForm.value.avatar_url;
+  return productForm.value?.avatar_url;
 });
 
-/**
- * @type {import('vue').ComputedRef<Array<object>>}
- * @returns {Array<object>} The list of categories formatted for the q-select component.
- */
-const categoryOptions = computed(() =>
-  categories.value.map((category) => ({
-    label: category.name,
-    value: category.id,
-  }))
-);
-
-/**
- * Fetches the product and categories when the component is mounted.
- * @returns {void}
- */
+// --- Lifecycle Hooks ---
 onMounted(async () => {
   const productId = route.params.id;
-  await productStore.fetchProductById(productId);
-  await productStore.fetchAllCategories();
-  if (selectedProduct.value) {
+  await Promise.all([
+    productStore.fetchProductById(productId),
+    productStore.fetchAllCategories(),
+  ]);
+
+  const productData = productStore.selectedProduct;
+  if (productData) {
     productForm.value = {
-      id: selectedProduct.value.id,
-      name: selectedProduct.value.name,
-      reference: selectedProduct.value.reference,
-      avatar_url: selectedProduct.value.avatar_url,
-      category_id: selectedProduct.value.category.id,
-      description: selectedProduct.value.description,
+      id: productData.id,
+      name: productData.name,
+      reference: productData.reference,
+      avatar_url: productData.avatar_url,
+      // Se asigna el objeto de categoría completo
+      category: productData.category || null,
+      subcategory: productData.subcategory || '',
+      sizes: productData.sizes || '',
+      price: productData.price || 0,
+      stock: productData.stock || 0,
     };
   }
 });
 
-/**
- * Gestiona el envío del formulario.
- * Primero, sube la imagen del avatar si se ha seleccionado una nueva.
- * Luego, actualiza los datos del producto en la base de datos.
- * @returns {Promise<void>}
- */
+// --- Methods ---
+
+const handleFileSelection = (file) => {
+  avatarFile.value = file;
+};
+
+const triggerFileInput = () => {
+  fileInputRef.value.pickFiles();
+};
+
 const onSubmit = async () => {
   try {
-    // Si se ha seleccionado un nuevo archivo de imagen, subirlo primero.
+    let newAvatarUrl = productForm.value.avatar_url;
     if (avatarFile.value) {
-      const newAvatarUrl = await productStore.uploadAvatarImage(avatarFile.value);
-      productForm.value.avatar_url = newAvatarUrl;
+      newAvatarUrl = await productStore.uploadAvatarImage(avatarFile.value);
     }
 
-    // Actualizar el producto con los nuevos datos.
-    await productStore.updateProduct(productForm.value);
+    // Se prepara el objeto para la base de datos
+    const productDataToUpdate = {
+      ...productForm.value,
+      avatar_url: newAvatarUrl,
+      category_id: productForm.value.category?.id, // Se extrae el ID
+    };
+    // Se elimina el objeto anidado para evitar conflictos con Supabase
+    delete productDataToUpdate.category;
 
-    // Notificar al usuario que la operación fue exitosa.
+    await productStore.updateProduct(productDataToUpdate);
+
     $q.notify({
       color: 'positive',
       message: 'Producto actualizado correctamente',
+      icon: 'check_circle',
     });
 
-    // Redirigir al usuario a la lista de productos.
     router.push({ name: 'product-list' });
   } catch (error) {
-    // Si ocurre un error, mostrar una notificación detallada.
-    console.error('Fallo al actualizar el producto:', error);
     $q.notify({
       color: 'negative',
-      message: 'Error al actualizar el producto',
-      caption: error.message, // Usar 'caption' para mostrar los detalles del error.
+      message:
+        error.message || 'Error al actualizar el producto. Intente de nuevo.',
+      icon: 'error',
     });
   }
 };
 </script>
-
-<style scoped>
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-</style>

@@ -3,7 +3,7 @@ Landing Page con Cátalogo de productos con sus especificaciones de cada uno, (c
 
 
 #Agents Rules
--   Cada función nueva debe incluir un bloque de comentario encima en Español.
+-   Cada función nueva debe incluir una linea con el nombre de la acción en Español.
 -   Todas las variables y funciones deben escribirse en camelCase
 -   No uses snake_case
 -   Trabajar todas las acciones y getters con stores, en la carpeta store

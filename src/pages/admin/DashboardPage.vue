@@ -60,12 +60,40 @@
           />
         </q-card-actions>
       </q-card>
+
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Ver Página Principal</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Navega a la página principal para ver el listado de productos.
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            color="primary"
+            icon="home"
+            label="Ir a Inicio"
+            @click="goToHome"
+          />
+        </q-card-actions>
+      </q-card>
     </div>
   </q-page>
 </template>
 
 <script setup>
-// No script logic needed for this view yet
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function goToHome() {
+  router.push({ name: 'home' })
+}
 </script>
 
 <style scoped>
