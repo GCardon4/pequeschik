@@ -90,7 +90,14 @@ export const useProductStore = defineStore('productStore', {
         if (error) {
           throw error;
         }
-        this.selectedProduct = data;
+
+        const defaultImageUrl =
+          'https://vssnhqhfasirinocufbs.supabase.co/storage/v1/object/public/Products/Avatar/avatar-img-default.png';
+
+        this.selectedProduct = {
+          ...data,
+          avatar_url: data.avatar_url || defaultImageUrl,
+        };
       } catch (err) {
         this.error = err.message;
         console.error('Error fetching product:', err.message);
@@ -141,15 +148,17 @@ export const useProductStore = defineStore('productStore', {
         const { data, error } = await supabase
           .from('products')
           .update(productData)
-          .eq('id', productData.id);
+          .eq('id', productData.id)
+          .select('*, category:categories(id, name)')
+          .single();
         if (error) {
           throw error;
         }
-        
+
         // Update the local products array
         const index = this.products.findIndex((p) => p.id === productData.id);
         if (index !== -1) {
-          this.products[index] = { ...this.products[index], ...data[0] };
+          this.products[index] = data;
         }
       } catch (err) {
         this.error = err.message;
@@ -191,6 +200,38 @@ export const useProductStore = defineStore('productStore', {
      */
     setSelectedCategory(categoryId) {
       this.selectedCategory = categoryId;
+    },
+    /**
+     * Sube una imagen de avatar a Supabase Storage.
+     * @async
+     * @param {File} file - El archivo de imagen a subir.
+     * @returns {Promise<string>} La URL pública de la imagen subida.
+     */
+    async uploadAvatarImage(file) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const filePath = `Avatar/${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('Avatar') // Corregido: el nombre del bucket es 'Avatar' en minúscula.
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data } = supabase.storage
+          .from('Avatar') // Corregido: el nombre del bucket es 'Products' en minúscula.
+          .getPublicUrl(filePath);
+
+        return data.publicUrl;
+      } catch (err) {
+        this.error = err.message;
+        console.error('Error al subir la imagen del avatar:', err.message); // Mensaje de error mejorado.
+        throw err;
+      } finally {
+        this.loading = false;
+      }
     },
   },
 });

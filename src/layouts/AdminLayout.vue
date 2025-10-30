@@ -15,6 +15,7 @@
           Admin Panel
         </q-toolbar-title>
 
+        <q-btn flat round dense icon="home" @click="goToHome" />
         <q-btn flat round dense icon="logout" @click="handleLogout" />
       </q-toolbar>
     </q-header>
@@ -72,6 +73,10 @@ const adminLinks = computed(() => navigationStore.getAdminLinks)
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
+}
+
+function goToHome() {
+  router.push({ name: 'home' })
 }
 
 async function handleLogout() {

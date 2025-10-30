@@ -3,7 +3,7 @@ Landing Page con Cátalogo de productos con sus especificaciones de cada uno, (c
 
 
 #Agents Rules
--   Cada función nueva debe incluir un bloque de comentario encima.
+-   Cada función nueva debe incluir un bloque de comentario encima en Español.
 -   Todas las variables y funciones deben escribirse en camelCase
 -   No uses snake_case
 -   Trabajar todas las acciones y getters con stores, en la carpeta store
@@ -23,6 +23,11 @@ Landing Page con Cátalogo de productos con sus especificaciones de cada uno, (c
 
 1. **Autenticación** - Login, registro y gestión de perfiles
 2. **Gestión de Productos** - CRUD de productos y categorías
+
+
+###  Módulo Productos
+
+-   **Avatar** 
 
 ##  Stack Tecnológico
 
