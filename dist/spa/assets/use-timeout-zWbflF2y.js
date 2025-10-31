@@ -1,1 +1,0 @@
-import{a8 as r,z as i,aq as s,y as a}from"./index-DiEdNpAm.js";function l(){let e=null;const n=a();function t(){e!==null&&(clearTimeout(e),e=null)}return r(t),i(t),{removeTimeout:t,registerTimeout(o,u){t(),s(n)===!1&&(e=setTimeout(()=>{e=null,o()},u))}}}export{l as u};

@@ -1,0 +1,1 @@
+import{u as r,s as t}from"./index-B0f3dEv-.js";const l=async({store:u})=>{const s=r(u),{data:{session:a}}=await t.auth.getSession();a&&(s.user=a.user,await s.loadProfile()),t.auth.onAuthStateChange((e,o)=>{e==="SIGNED_IN"?(s.user=o.user,s.loadProfile()):e==="SIGNED_OUT"&&(s.user=null,s.profile=null)})};export{l as default};

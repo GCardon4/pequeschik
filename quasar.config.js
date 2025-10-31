@@ -37,9 +37,9 @@ export default defineConfig((/* ctx */) => {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {
-       env: {
-        SUPABASE_URL: 'https://vssnhqhfasirinocufbs.supabase.co',
-        SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzc25ocWhmYXNpcmlub2N1ZmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5MzMxNTYsImV4cCI6MjA3NjUwOTE1Nn0.zPDoyBr9UWASo6tM2InaXH008yogN0CPzbrlAPKc1Os'
+       env: {        
+        SUPABASE_URL: 'https://iqnxgapixnukuqpwftfn.supabase.co',
+        SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxbnhnYXBpeG51a3VxcHdmdGZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MzM0OTgsImV4cCI6MjA3NzUwOTQ5OH0.q_fMXJmb8AUWal5T5FLF8bT_8qSC9_OE4E2NlSCD_xE'
       },
       target: {
         browser: ['es2022', 'firefox115', 'chrome115', 'safari14'],

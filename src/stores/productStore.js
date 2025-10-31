@@ -34,7 +34,7 @@ export const useProductStore = defineStore('productStore', {
           .select('*, category:categories(id, name)');
         if (error) throw error;
         const defaultImageUrl =
-          'https://vssnhqhfasirinocufbs.supabase.co/storage/v1/object/public/avatars/avatar-img-default.png';
+          'https://iqnxgapixnukuqpwftfn.supabase.co/storage/v1/object/public/avatars/avatar-img-default.png';
         this.products = data.map((product) => ({
           ...product,
           avatar_url: product.avatar_url || defaultImageUrl,
@@ -57,7 +57,7 @@ export const useProductStore = defineStore('productStore', {
           .single();
         if (error) throw error;
         const defaultImageUrl =
-          'https://vssnhqhfasirinocufbs.supabase.co/storage/v1/object/public/avatars/avatar-img-default.png';
+          'https://iqnxgapixnukuqpwftfn.supabase.co/storage/v1/object/public/avatars/avatar-img-default.png';
         this.selectedProduct = {
           ...data,
           avatar_url: data.avatar_url || defaultImageUrl,
