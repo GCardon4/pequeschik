@@ -162,7 +162,7 @@ function openImageDialog(url) {
  * Abre WhatsApp con un mensaje pre-rellenado para la compra.
  */
 function buyOnWhatsApp() {
-  const phoneNumber = '573215698895'; // Reemplazar con tu número
+  const phoneNumber = '573137894436'; // Número Peques Chik
   const productName = product.value.name;
   const productRef = product.value.reference;
   const message = `Hola, estoy interesado en el producto: *${productName}* (Ref: *${productRef}*). ¿Podrías darme más información?`;
