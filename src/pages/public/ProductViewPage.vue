@@ -70,8 +70,8 @@
               <q-btn
                 unelevated
                 color="positive"
-                icon="whatsapp"
-                label="Compra"
+                icon="shopping_cart"
+                label="Quiero este Producto"
                 @click="buyOnWhatsApp"
               />
             </div>
