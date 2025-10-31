@@ -69,8 +69,27 @@ export const useProductStore = defineStore('productStore', {
       }
     },
 
-    async createProduct() {
-      // ... (sin cambios)
+    async createProduct(productData) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .insert(productData)
+          .select()
+          .single();
+        if (error) {
+          throw error;
+        }
+        this.products.push(data);
+        return data;
+      } catch (err) {
+        this.error = err.message;
+        console.error('Error Creando el Producto:', err.message);
+        throw err;
+      } finally {
+        this.loading = false;
+      }
     },
 
     async updateProduct(productData) {
