@@ -32,22 +32,25 @@
       <!-- Detalles del Producto -->
       <q-card flat bordered class="q-mt-lg">
         <q-card-section>
-          <div class="text-h4 q-mb-sm">{{ product.name }}</div>
-          <div class="text-subtitle1 text-grey-7">Ref: {{ product.reference }}</div>
-          <q-chip
-            v-if="product.category"
-            :label="product.category.name"
-            color="primary"
-            text-color="white"
-            class="q-mt-sm"
-          />
-          <div v-if="product.subcategory" class="text-h6 q-mt-md">{{ product.subcategory }}</div>
-          <div class="text-h5 text-bold q-my-md text-primary">
-            {{ formatCurrency(product.price) }}
+          <div class="row">
+            <div class="text-h4 q-mb-sm col">{{ product.name }}</div>
+            <div class="text-subtitle1 text-grey-7 ">Ref: {{ product.reference }}</div>
+            <q-chip
+              v-if="product.category"
+              :label="product.category.name"
+              color="primary"
+              text-color="white"
+            />
           </div>
-          <div v-if="product.sizes" class="q-my-md">
-            <div class="text-subtitle2">Tallas disponibles:</div>
-            <div class="row q-gutter-sm">
+
+          <div v-if="product.description" class="q-mt-md desc-product">
+            <p>{{ product.description }}</p>
+          </div>
+         
+          <div v-if="product.subcategory" class="row">
+            <div class="col text-h6">{{ product.subcategory }}</div>
+            <div v-if="product.sizes" class="col">
+            <div class="text-subtitle2 col">Tallas disponibles: 
               <q-chip
                 v-for="size in product.sizes.split(',')"
                 :key="size"
@@ -56,10 +59,14 @@
                 color="secondary"
               />
             </div>
+
           </div>
-          <div v-if="product.description" class="q-mt-md">
-            <p>{{ product.description }}</p>
           </div>
+          <div class="text-h5 text-bold q-my-md text-primary">
+            {{ formatCurrency(product.price) }}
+          </div>
+         
+          
           <q-separator class="q-my-lg" />
           <div class="row items-center justify-between">
             <div class="text-subtitle1">
@@ -180,6 +187,10 @@ const formatCurrency = (val) =>
 </script>
 
 <style scoped>
+.desc-product{
+  border-bottom: 2px solid #4E9594;
+
+}
 .product-view-container {
   max-width: 800px;
   margin: 0 auto;
