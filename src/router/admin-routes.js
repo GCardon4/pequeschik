@@ -30,13 +30,6 @@ export default [
     props: true,
     meta: { title: 'Editar Producto', requiresAuth: true, role: 'admin' },
   },
-  {
-    path: 'products/:id',
-    name: 'product-view',
-    component: () => import('pages/admin/products/ProductViewPage.vue'),
-    props: true,
-    meta: { title: 'Detalle Producto', requiresAuth: true, role: 'admin' },
-  },
 
   // 👥 CRUD Usuarios
   {

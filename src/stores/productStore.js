@@ -97,7 +97,28 @@ export const useProductStore = defineStore('productStore', {
     },
 
     async fetchAllCategories() {
-      // ... (sin cambios)
+      this.loading = true;
+      this.error = null;
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('id, name, icon');
+        if (error) {
+          throw error;
+        }
+        this.categories = data;
+        console.log('Categorias cargadss:', data);
+      } catch (err) {
+        this.error = err.message;
+        console.error('Error Trayendo Categorías:', err.message);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // *Selección por Filtros de Categoría
+    setSelectedCategory(categoryId) {
+      this.selectedCategory = categoryId;
     },
 
     async uploadAvatarImage(file) {
@@ -212,10 +233,7 @@ export const useProductStore = defineStore('productStore', {
       }
     },
 
-    /**
-     * Elimina una imagen de la galería.
-     * @param {string} imageId - El ID de la imagen a eliminar.
-     */
+    /**  * Elimina una imagen de la galería.   */
     async deleteGalleryImage(imageId) {
       this.loading = true;
       this.error = null;
@@ -233,5 +251,9 @@ export const useProductStore = defineStore('productStore', {
         this.loading = false;
       }
     },
+
+   
+
+
   },
 });
