@@ -23,7 +23,15 @@
             :rules="[(val) => !!val || 'La referencia es requerida']"
           />
 
-          <!-- Campo de la Categoría (Corregido) -->
+          <!-- Campo de la Descripción -->
+          <q-input
+            v-model="productForm.description"
+            label="Descripción"
+            filled
+            lazy-rules
+          />
+
+          <!-- Campo de la Categoría  -->
           <q-select
             v-model="productForm.category"
             :options="categories"
@@ -125,6 +133,7 @@ const productStore = useProductStore();
 const productForm = ref({
   name: '',
   reference: '',
+  description: '',
   category: null, // <--- Vinculado al objeto completo
   avatar_url: '',
   subcategory: '',

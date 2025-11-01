@@ -20,7 +20,7 @@ export const useProductStore = defineStore('productStore', {
         return state.products;
       }
       return state.products.filter(
-        (product) => product.category.id === state.selectedCategory
+        (product) => product.category && product.category.id === state.selectedCategory
       );
     },
   },

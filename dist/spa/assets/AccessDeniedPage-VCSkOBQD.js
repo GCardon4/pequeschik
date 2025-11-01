@@ -1,1 +1,0 @@
-import{_ as e}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{i as c,o as n}from"./index-B0f3dEv-.js";const o={};function r(s,t){return n(),c("h1",null,"Acces Denied")}const f=e(o,[["render",r]]);export{f as default};
