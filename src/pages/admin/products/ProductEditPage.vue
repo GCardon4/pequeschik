@@ -173,7 +173,7 @@ async function onSubmit() {
   try {
     let newAvatarUrl = productForm.value.avatar_url;
     if (avatarFile.value) {
-      newAvatarUrl = await productStore.uploadAvatarImage(avatarFile.value);
+      newAvatarUrl = await productStore.uploadAvatarImage(avatarFile.value, productForm.value.id);
     }
     const productDataToUpdate = {
       ...productForm.value,

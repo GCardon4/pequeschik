@@ -3,14 +3,14 @@
     <div class="container">
       <div class="row">
         <div class="col-12">
-          <h1 class="text-h4">Product List</h1>
+          <h1 class="text-h4">Lista de Productos</h1>
         </div>
       </div>
       <div class="row q-mb-md">
         <div class="col-12">
           <q-btn
             color="primary"
-            label="Create Product"
+            label="Crear Producto"
             @click="goToCreateProduct"
           />
         </div>
@@ -45,7 +45,7 @@
                   round
                   icon="delete"
                   color="negative"
-                  @click="deleteProduct(props.row.id)"
+                  @click="confirmDeleteProduct(props.row.id)"
                 />
               </q-td>
             </template>
@@ -61,105 +61,91 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductStore } from 'src/stores/productStore';
 import { storeToRefs } from 'pinia';
+import { useQuasar } from 'quasar';
 
-/**
- * @type {object}
- * @property {function} push - The router push function.
- */
 const router = useRouter();
-
-/**
- * @type {object}
- * @property {object} productStore - The product store.
- * @property {Array} products - The list of products.
- * @property {boolean} loading - The loading status.
- */
 const productStore = useProductStore();
 const { products, loading } = storeToRefs(productStore);
+const $q = useQuasar();
 
-/**
- * @type {Array<object>}
- * @property {string} name - The column name.
- * @property {string} label - The column label.
- * @property {string} field - The column field.
- * @property {string} align - The column alignment.
- * @property {boolean} sortable - Whether the column is sortable.
- */
+/** Columnas Que traemos a la Tabla */
 const columns = [
   {
     name: 'avatar_url',
-    label: 'Image',
+    label: 'Imagen',
     field: 'avatar_url',
     align: 'left',
   },
   {
     name: 'name',
-    label: 'Name',
+    label: 'Nombre',
     field: 'name',
     align: 'left',
     sortable: true,
   },
   {
     name: 'category',
-    label: 'Category',
+    label: 'Categoria',
     field: (row) => row.category.name,
     align: 'left',
     sortable: true,
   },
   {
     name: 'reference',
-    label: 'Reference',
+    label: 'Código',
     field: 'reference',
     align: 'left',
     sortable: true,
   },
   {
     name: 'description',
-    label: 'Description',
+    label: 'Descripción',
     field: 'description',
     align: 'left',
   },
   {
     name: 'actions',
-    label: 'Actions',
+    label: 'Acciones',
     field: 'actions',
     align: 'right',
   },
 ];
 
-/**
- * Fetches all products when the component is mounted.
- * @returns {void}
- */
+
 onMounted(() => {
   productStore.fetchAllProducts();
 });
 
-/**
- * Navigates to the product creation page.
- * @returns {void}
- */
+
 const goToCreateProduct = () => {
   router.push({ name: 'product-create' });
 };
 
-/**
- * Navigates to the product edit page.
- * @param {number} id - The ID of the product to edit.
- * @returns {void}
- */
 const editProduct = (id) => {
   router.push({ name: 'product-edit', params: { id } });
 };
 
-/**
- * Deletes a product.
- * @param {number} id - The ID of the product to delete.
- * @returns {void}
- */
-const deleteProduct = (id) => {
-  // Implement delete logic here
-  console.log('Delete product with id:', id);
+
+const confirmDeleteProduct = (id) => {
+  $q.dialog({
+    title: 'Confirmar',
+    message: '¿Estás seguro de que quieres eliminar este producto?',
+    cancel: true,
+    persistent: true,
+  }).onOk(async () => {
+    try {
+      await productStore.deleteProduct(id);
+      $q.notify({
+        color: 'positive',
+        message: 'Producto eliminado correctamente',
+      });
+    } catch (error) {
+      $q.notify({
+        color: 'negative',
+        message: `Error al eliminar el producto: ${error.message}`,
+      });
+    }
+  });
 };
 </script>
 
