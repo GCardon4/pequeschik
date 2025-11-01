@@ -9,6 +9,7 @@
           <!-- (Campos existentes: Nombre, Referencia, Categoría, etc.) -->
           <q-input v-model="productForm.name" label="Nombre" filled />
           <q-input v-model="productForm.reference" label="Referencia" filled />
+          <q-input v-model="productForm.description" label="Descripcion" filled />
           <q-select
             v-model="productForm.category"
             :options="categories"
@@ -116,6 +117,7 @@ onMounted(async () => {
       id: productData.id,
       name: productData.name,
       reference: productData.reference,
+      description: productData.description,
       avatar_url: productData.avatar_url,
       category: productData.category || null,
       subcategory: productData.subcategory || '',
