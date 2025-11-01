@@ -1,197 +1,225 @@
 <template>
-  <q-page class="q-pa-md">
-    <div class="text-h4 q-mb-md">Crear Nuevo Producto</div>
+  <q-page padding>
+    <div class="q-pa-md">
+      <div class="text-h4 q-mb-md">Crear Nuevo Producto</div>
 
-    <q-card>
-      <q-card-section>
-        <q-form @submit.prevent="onSubmit" class="q-gutter-md">
-          <!-- Campo del Nombre -->
-          <q-input
-            v-model="productForm.name"
-            label="Nombre del Producto"
-            filled
-            lazy-rules
-            :rules="[(val) => !!val || 'El nombre es requerido']"
-          />
+      <q-card>
+        <q-card-section>
+          <q-form @submit.prevent="handleSubmit">
+            <div class="row q-col-gutter-md">
+              <!-- Columna Izquierda: Detalles del Producto -->
+              <div class="col-xs-12 col-md-8">
+                <q-input
+                  v-model="product.name"
+                  label="Nombre del Producto"
+                  filled
+                  :rules="[(val) => !!val || 'El nombre es requerido']"
+                />
 
-          <!-- Campo de la Referencia -->
-          <q-input
-            v-model="productForm.reference"
-            label="Referencia"
-            filled
-            lazy-rules
-            :rules="[(val) => !!val || 'La referencia es requerida']"
-          />
+                <q-input
+                  v-model="product.reference"
+                  label="Referencia"
+                  filled
+                  class="q-mt-md"
+                />
 
-          <!-- Campo de la Descripción -->
-          <q-input
-            v-model="productForm.description"
-            label="Descripción"
-            filled
-            lazy-rules
-          />
+                <q-editor
+                  v-model="product.description"
+                  label="Descripción"
+                  filled
+                  class="q-mt-md"
+                  min-height="150px"
+                />
+              </div>
 
-          <!-- Campo de la Categoría  -->
-          <q-select
-            v-model="productForm.category"
-            :options="categories"
-            option-label="name"
-            label="Categoría"
-            filled
-            lazy-rules
-            :rules="[(val) => !!val || 'La categoría es requerida']"
-          />
+              <!-- Columna Derecha: Categoría y Precios -->
+              <div class="col-xs-12 col-md-4">
+                <q-select
+                  v-model="product.category_id"
+                  :options="categoryOptions"
+                  label="Categoría"
+                  emit-value
+                  map-options
+                  filled
+                  :rules="[(val) => val !== null || 'La categoría es requerida']"
+                />
 
-          <!-- Nuevos Campos -->
-          <q-input
-            v-model="productForm.subcategory"
-            label="Subcategoría"
-            filled
-            placeholder="Ej: Camisetas, Pantalones"
-          />
+                <q-input
+                  v-model.number="product.price"
+                  label="Precio"
+                  type="number"
+                  step="0.01"
+                  filled
+                  class="q-mt-md"
+                />
 
-          <q-input
-            v-model="productForm.sizes"
-            label="Tallas"
-            filled
-            placeholder="Ej: S, M, L, XL"
-          />
+                <q-input
+                  v-model.number="product.stock_quantity"
+                  label="Cantidad en Stock"
+                  type="number"
+                  filled
+                  class="q-mt-md"
+                />
 
-          <div class="row q-gutter-md">
-            <q-input
-              v-model.number="productForm.price"
-              label="Precio"
-              type="number"
-              filled
-              prefix="COP $"
-              class="col"
-              :rules="[(val) => val >= 0 || 'El precio no puede ser negativo']"
-            />
+                <q-toggle
+                  v-model="product.is_active"
+                  label="Producto Activo"
+                  class="q-mt-md"
+                />
+              </div>
+            </div>
 
-            <q-input
-              v-model.number="productForm.stock"
-              label="Stock"
-              type="number"
-              filled
-              class="col"
-              :rules="[
-                (val) => val >= 0 || 'El stock no puede ser negativo',
-                (val) =>
-                  /^\d+$/.test(val) || 'El stock debe ser un número entero',
-              ]"
-            />
-          </div>
+            <!-- Sección de Galería de Imágenes -->
+            <div class="q-mt-xl">
+              <div class="text-h6">Galería de Imágenes</div>
+              <q-file
+                v-model="galleryFiles"
+                label="Añadir imágenes a la galería"
+                multiple
+                accept="image/*"
+                filled
+                capture="camera"
+                style="max-width: 400px"
+                @update:model-value="handleGallerySelection"
+              />
+              <div class="q-mt-md row q-gutter-md">
+                <q-img
+                  v-for="(url, index) in galleryPreviewUrls"
+                  :key="index"
+                  :src="url"
+                  class="gallery-thumbnail"
+                />
+              </div>
+            </div>
 
-          <!-- Sección del Avatar -->
-          <div class="text-subtitle1 q-mt-md">Avatar del Producto</div>
-          <div class="row items-center q-gutter-md">
-            <q-file
-              v-model="avatarFile"
-              label="Seleccionar imagen principal"
-              accept="image/*"
-              filled
-              style="max-width: 300px"
-              @update:model-value="handleFileSelection"
-            />
-            <q-avatar v-if="imagePreviewUrl" size="100px">
-              <q-img :src="imagePreviewUrl" ratio="1" />
-            </q-avatar>
-          </div>
-
-          <!-- Botones de Acción -->
-          <div class="q-mt-lg">
-            <q-btn
-              label="Crear Producto"
-              type="submit"
-              color="primary"
-              :loading="loading"
-            />
-            <q-btn
-              label="Cancelar"
-              color="grey"
-              class="q-ml-sm"
-              :to="{ name: 'product-list' }"
-            />
-          </div>
-        </q-form>
-      </q-card-section>
-    </q-card>
+            <!-- Botones de Acción -->
+            <div class="q-mt-lg">
+              <q-btn
+                label="Guardar Producto"
+                type="submit"
+                color="primary"
+                :loading="loading"
+              />
+              <q-btn
+                label="Cancelar"
+                color="grey"
+                class="q-ml-sm"
+                :to="{ name: 'product-list' }"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
-import { useProductStore } from 'src/stores/productStore';
+import { ref, onMounted } from "vue";
+import { useProductStore } from "src/stores/productStore";
+import { useRouter } from "vue-router";
+import { useQuasar } from "quasar";
 
-const router = useRouter();
+// Configuración de Quasar y Router
 const $q = useQuasar();
+const router = useRouter();
 const productStore = useProductStore();
 
-// --- State ---
-const productForm = ref({
-  name: '',
-  reference: '',
-  description: '',
-  category: null, // <--- Vinculado al objeto completo
-  avatar_url: '',
-  subcategory: '',
-  sizes: '',
+// Estado del componente
+const product = ref({
+  name: "",
+  reference: "",
+  description: "",
+  category_id: null,
   price: 0,
-  stock: 0,
+  stock_quantity: 0,
+  is_active: true,
 });
 const avatarFile = ref(null);
+const imagePreviewUrl = ref(null);
+const galleryFiles = ref([]);
+const galleryPreviewUrls = ref([]);
+const categoryOptions = ref([]);
+const loading = ref(false);
 
-// --- Getters and Computed Properties ---
-const loading = computed(() => productStore.getLoadingStatus);
-const categories = computed(() => productStore.getAllCategories);
-const imagePreviewUrl = computed(() => {
-  if (avatarFile.value) {
-    return URL.createObjectURL(avatarFile.value);
-  }
-  return null;
+// Cargar categorías al montar el componente
+onMounted(async () => {
+  await productStore.fetchCategories();
+  categoryOptions.value = productStore.categories.map((cat) => ({
+    label: cat.name,
+    value: cat.id,
+  }));
 });
 
-// --- Lifecycle Hooks ---
-onMounted(() => {
-  productStore.fetchAllCategories();
-});
-
-// --- Methods ---
+// Manejo de la selección de la imagen principal
 const handleFileSelection = (file) => {
   avatarFile.value = file;
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imagePreviewUrl.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    imagePreviewUrl.value = null;
+  }
 };
 
-const onSubmit = async () => {
+// Manejo de la selección de imágenes de la galería
+const handleGallerySelection = (files) => {
+  galleryFiles.value = files;
+  if (files && files.length > 0) {
+    galleryPreviewUrls.value = [];
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        galleryPreviewUrls.value.push(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
+  } else {
+    galleryPreviewUrls.value = [];
+  }
+};
+
+// Envío del formulario
+const handleSubmit = async () => {
+  loading.value = true;
   try {
-    let avatarUrl = '';
-    if (avatarFile.value) {
-      avatarUrl = await productStore.uploadAvatarImage(avatarFile.value);
-    }
-
-    // Prepara el objeto de datos para la base de datos
-    const productDataToCreate = {
-      ...productForm.value,
-      avatar_url: avatarUrl,
-      category_id: productForm.value.category?.id, // Extrae el ID del objeto
-    };
-    delete productDataToCreate.category; // Elimina el objeto para evitar conflictos
-
-    await productStore.createProduct(productDataToCreate);
+    const newProduct = await productStore.createProduct(
+      product.value,
+      avatarFile.value,
+      galleryFiles.value
+    );
 
     $q.notify({
-      color: 'positive',
-      message: 'Producto creado correctamente',
-      icon: 'check_circle',
+      color: "positive",
+      message: "Producto creado exitosamente.",
+      icon: "check_circle",
     });
-    router.push({ name: 'product-list' });
+
+    router.push({ name: "product-list" });
   } catch (error) {
+    console.error("Error al crear el producto:", error);
     $q.notify({
-      color: 'negative',
-      message: error.message || 'Error al crear el producto.',
-      icon: 'error',
+      color: "negative",
+      message:
+        "Hubo un error al crear el producto. " +
+        (error.message || "Por favor, intente de nuevo."),
+      icon: "error",
     });
+  } finally {
+    loading.value = false;
   }
 };
 </script>
+
+<style scoped>
+.gallery-thumbnail {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+</style>
