@@ -23,6 +23,21 @@
                   class="q-mt-md"
                 />
 
+                <!-- Input Avatar (usar handleFileSelection) -->
+                <q-file
+                  v-model="avatarFile"
+                  label="Avatar del Producto"
+                  filled
+                  accept="image/*"
+                  capture="camera"
+                  class="q-mt-md"
+                  style="max-width: 300px"
+                  @update:model-value="handleFileSelection"
+                />
+                <div v-if="imagePreviewUrl" class="q-mt-sm">
+                  <q-img :src="imagePreviewUrl" style="width:120px; height:120px; border-radius:4px;" />
+                </div>
+
                 <q-editor
                   v-model="product.description"
                   label="Descripción"
@@ -153,6 +168,7 @@ onMounted(async () => {
 
 // Manejo de la selección de la imagen principal
 const handleFileSelection = (file) => {
+  // Acción: Seleccionar Avatar
   avatarFile.value = file;
   if (file) {
     const reader = new FileReader();
@@ -186,7 +202,7 @@ const handleGallerySelection = (files) => {
 const handleSubmit = async () => {
   loading.value = true;
   try {
-    const newProduct = await productStore.createProduct(
+    await productStore.createProduct(
       product.value,
       avatarFile.value,
       galleryFiles.value
