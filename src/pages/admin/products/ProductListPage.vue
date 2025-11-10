@@ -6,22 +6,49 @@
           <h1 class="text-h4">Lista de Productos</h1>
         </div>
       </div>
+
+      <!-- Buscador y Botón de Crear -->
       <div class="row q-mb-md">
-        <div class="col-12">
+        <div class="col-12 col-md-6">
+          <q-input
+            v-model="searchText"
+            filled
+            label="Buscar por nombre o referencia"
+            clearable
+            :debounce="300"
+          >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+            <template v-slot:append v-if="searchText">
+              <q-icon
+                name="close"
+                @click="clearSearch"
+                class="cursor-pointer"
+              />
+            </template>
+          </q-input>
+        </div>
+
+        <div class="col-12 col-md-6 flex flex-center flex-md-end">
           <q-btn
             color="primary"
+            icon="add_circle"
             label="Crear Producto"
             @click="goToCreateProduct"
           />
         </div>
       </div>
+
+
       <div class="row">
         <div class="col-12">
           <q-table
-            :rows="products"
+            :rows="filteredProducts"
             :columns="columns"
             row-key="id"
             :loading="loading"
+            :filter="searchText"
           >
             <template v-slot:body-cell-avatar_url="props">
               <q-td :props="props">
@@ -57,7 +84,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductStore } from 'src/stores/productStore';
 import { storeToRefs } from 'pinia';
@@ -67,6 +94,7 @@ const router = useRouter();
 const productStore = useProductStore();
 const { products, loading } = storeToRefs(productStore);
 const $q = useQuasar();
+const searchText = ref('');
 
 /** Columnas Que traemos a la Tabla */
 const columns = [
@@ -147,6 +175,22 @@ const confirmDeleteProduct = (id) => {
     }
   });
 };
+
+// Función para limpiar la búsqueda
+const clearSearch = () => {
+  searchText.value = '';
+};
+
+// Computed property para filtrar productos
+const filteredProducts = computed(() => {
+  if (!searchText.value) return products.value;
+  
+  const searchLower = searchText.value.toLowerCase();
+  return products.value.filter(product => 
+    product.name.toLowerCase().includes(searchLower) ||
+    product.reference.toLowerCase().includes(searchLower)
+  );
+});
 </script>
 
 <style scoped>

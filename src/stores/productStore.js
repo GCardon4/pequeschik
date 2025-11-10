@@ -39,6 +39,9 @@ export const useProductStore = defineStore('productStore', {
 
         this.products = data.map((product) => ({
           ...product,
+          name: product.name || '',
+        reference: product.reference || '',
+        description: product.description || '',
           avatar_url: product.avatar_url || defaultImageUrl,
         }));
       } catch (err) {
