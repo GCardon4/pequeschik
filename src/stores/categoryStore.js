@@ -1,6 +1,6 @@
 // Almacenamiento de Categorías
 import { defineStore } from "pinia";
-import { supabase } from "boot/supabase";
+import { supabase } from "src/config/supabase";
 import { useQuasar } from "quasar";
 
 export const useCategoryStore = defineStore("categoryStore", {

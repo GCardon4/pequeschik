@@ -1,220 +1,208 @@
 <template>
-  <q-page padding>
-    <div class="q-pa-md" v-if="product">
-      <div class="text-h4 q-mb-md">Editar Producto</div>
+  <q-page class="q-pa-md">
+    <div class="text-h4 q-mb-md">Editar Producto</div>
 
-      <q-card>
-        <q-card-section>
-          <q-form @submit.prevent="handleSubmit">
-            <div class="row q-col-gutter-md">
-              <!-- Columna Izquierda: Detalles y Avatar -->
-              <div class="col-xs-12 col-md-4">
-                <q-img
-                  :src="imagePreviewUrl || product.avatar_url"
-                  style="max-height: 300px; border-radius: 8px"
-                  fit="contain"
-                  class="q-mb-md"
-                >
-                  <template v-slot:error>
-                    <div
-                      class="absolute-full flex flex-center bg-grey-3 text-grey-8"
-                    >
-                      <q-icon name="image" size="3rem" />
-                      <div>No hay imagen</div>
-                    </div>
-                  </template>
-                </q-img>
+    <q-card v-if="productForm">
+      <!-- ... (sección del formulario principal sin cambios) ... -->
+      <q-card-section>
+        <q-form @submit.prevent="onSubmit" class="q-gutter-md">
+          <!-- (Campos existentes: Nombre, Referencia, Categoría, etc.) -->
+          <q-input v-model="productForm.name" label="Nombre" filled />
+          <q-input v-model="productForm.reference" label="Referencia" filled />
+          <q-input v-model="productForm.description" label="Descripcion" filled />
+          <q-select
+            v-model="productForm.category"
+            :options="categories"
+            option-label="name"
+            label="Categoría"
+            filled
+          />
+          <q-input v-model="productForm.subcategory" label="Subcategoría" filled />
+          <q-input v-model="productForm.sizes" label="Tallas" filled />
+          <div class="row q-gutter-md">
+            <q-input v-model.number="productForm.price" label="Precio" type="number" filled prefix="COP $" class="col" />
+            <q-input v-model.number="productForm.stock" label="Stock" type="number" filled class="col" />
+          </div>
 
-                <q-file
-                  v-model="avatarFile"
-                  label="Cambiar imagen principal"
-                  accept="image/*"
-                  filled
-                  capture="camera"
-                  style="max-width: 400px"
-                  @update:model-value="handleFileSelection"
-                />
-              </div>
+          <!-- Avatar (Imagen Principal) -->
+          <div class="text-subtitle1 q-mt-md">Avatar del Producto</div>
+          <div class="row items-center q-gutter-md">
+            <q-file ref="fileInputRef" v-model="avatarFile" label="Seleccionar nueva imagen" accept="image/*" filled style="max-width: 300px" @update:model-value="handleFileSelection" />
+            <q-avatar v-if="imagePreviewUrl" size="100px" class="cursor-pointer" @click="triggerFileInput">
+              <q-img :src="imagePreviewUrl" ratio="1" />
+            </q-avatar>
+          </div>
 
-              <!-- Columna Derecha: Formulario de Edición -->
-              <div class="col-xs-12 col-md-8">
-                <q-input
-                  v-model="product.name"
-                  label="Nombre del Producto"
-                  filled
-                  :rules="[(val) => !!val || 'El nombre es requerido']"
-                />
+          <!-- Botones del Formulario Principal -->
+          <div class="q-mt-lg">
+            <q-btn label="Actualizar Producto" type="submit" color="primary" :loading="loading" />
+            <q-btn label="Cancelar" color="grey" class="q-ml-sm" :to="{ name: 'product-list' }" />
+          </div>
+        </q-form>
+      </q-card-section>
 
-                <q-input
-                  v-model="product.reference"
-                  label="Referencia"
-                  filled
-                  class="q-mt-md"
-                />
+      <q-separator />
 
-                <q-editor
-                  v-model="product.description"
-                  label="Descripción"
-                  filled
-                  class="q-mt-md"
-                  min-height="150px"
-                />
+      <!-- Nueva Sección de Galería de Imágenes -->
+      <q-card-section>
+        <div class="text-h6 q-mb-md">Galería de Imágenes</div>
+        <div class="row items-start q-gutter-md q-mb-md">
+          <q-file v-model="galleryFiles" label="Añadir imágenes a la galería" accept="image/*" filled multiple style="flex: 1" />
+          <q-btn label="Subir" color="secondary" @click="handleGalleryUpload" :disable="!galleryFiles || galleryFiles.length === 0" :loading="loading" />
+        </div>
 
-                <q-select
-                  v-model="product.category_id"
-                  :options="categoryOptions"
-                  label="Categoría"
-                  emit-value
-                  map-options
-                  filled
-                  class="q-mt-md"
-                  :rules="[
-                    (val) => val !== null || 'La categoría es requerida',
-                  ]"
-                />
+        <q-inner-loading :showing="loadingGallery">
+          <q-spinner-gears size="50px" color="primary" />
+        </q-inner-loading>
 
-                <q-input
-                  v-model.number="product.price"
-                  label="Precio"
-                  type="number"
-                  step="0.01"
-                  filled
-                  class="q-mt-md"
-                />
+        <div v-if="gallery.length > 0" class="row q-gutter-md">
+          <div v-for="image in gallery" :key="image.id" class="relative-position">
+            <q-img :src="image.image_url" width="150px" height="150px" fit="cover" class="rounded-borders" />
+            <q-btn flat dense round color="negative" icon="delete" class="absolute-top-right" style="background: rgba(0,0,0,0.5);" @click="handleDeleteImage(image.id)" />
+          </div>
+        </div>
+        <div v-else>
+          <q-item><q-item-section class="text-grey">Este producto aún no tiene imágenes en la galería.</q-item-section></q-item>
+        </div>
+      </q-card-section>
+    </q-card>
 
-                <q-input
-                  v-model.number="product.stock_quantity"
-                  label="Cantidad en Stock"
-                  type="number"
-                  filled
-                  class="q-mt-md"
-                />
-
-                <q-toggle
-                  v-model="product.is_active"
-                  label="Producto Activo"
-                  class="q-mt-md"
-                />
-              </div>
-            </div>
-
-            <!-- Botones de Acción -->
-            <div class="q-mt-lg">
-              <q-btn
-                label="Guardar Cambios"
-                type="submit"
-                color="primary"
-                :loading="loading"
-              />
-              <q-btn
-                label="Cancelar"
-                color="grey"
-                class="q-ml-sm"
-                :to="{ name: 'product-list' }"
-              />
-            </div>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </div>
-    <div v-else class="flex flex-center" style="height: 80vh">
+    <q-inner-loading :showing="loading || !productForm">
       <q-spinner-gears size="50px" color="primary" />
-    </div>
+    </q-inner-loading>
   </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
-import { useProductStore } from "src/stores/productStore";
-import { useRouter, useRoute } from "vue-router";
-import { useQuasar } from "quasar";
+import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import { useProductStore } from 'src/stores/productStore';
 
-// Configuración de Quasar, Router y Route
-const $q = useQuasar();
-const router = useRouter();
 const route = useRoute();
+const router = useRouter();
+const $q = useQuasar();
 const productStore = useProductStore();
 
-// Estado del componente
-const product = ref(null);
+// --- State del Formulario Principal ---
+const productForm = ref(null);
 const avatarFile = ref(null);
-const imagePreviewUrl = ref(null);
-const categoryOptions = ref([]);
-const loading = ref(false);
+const fileInputRef = ref(null);
 
-// Cargar datos del producto y categorías
+// --- State de la Galería ---
+const gallery = ref([]);
+const galleryFiles = ref([]);
+const loadingGallery = ref(false);
+
+// --- Computed ---
+const loading = computed(() => productStore.getLoadingStatus);
+const categories = computed(() => productStore.getAllCategories);
+const imagePreviewUrl = computed(() => {
+  if (avatarFile.value) return URL.createObjectURL(avatarFile.value);
+  return productForm.value?.avatar_url;
+});
+
+// --- Métodos de Carga ---
 onMounted(async () => {
   const productId = route.params.id;
-
-  // Cargar categorías
-  await productStore.fetchCategories();
-  categoryOptions.value = productStore.categories.map((cat) => ({
-    label: cat.name,
-    value: cat.id,
-  }));
-
-  // Cargar producto
-  await productStore.fetchProductById(productId);
-  if (productStore.currentProduct) {
-    product.value = { ...productStore.currentProduct };
-  } else {
+  try {
+    await Promise.all([
+      productStore.fetchProductById(productId),
+      productStore.fetchAllCategories(),
+    ]);
+    const productData = productStore.selectedProduct;
+    if (productData) {
+      productForm.value = {
+        id: productData.id,
+        name: productData.name,
+        reference: productData.reference,
+        description: productData.description,
+        avatar_url: productData.avatar_url,
+        category: productData.category || null,
+        subcategory: productData.subcategory || '',
+        sizes: productData.sizes || '',
+        price: productData.price || 0,
+        stock: productData.stock || 0,
+      };
+    } else {
+      $q.notify({
+        color: 'negative',
+        message: 'No se pudo cargar el producto al editar.',
+        icon: 'error',
+      });
+      router.push({ name: 'product-list' });
+    }
+    // Acción: Cargar galería
+    loadGallery();
+  } catch (error) {
     $q.notify({
-      color: "negative",
-      message: "No se pudo cargar el producto.",
-      icon: "error",
+      color: 'negative',
+      message: 'Error al cargar el producto.',
+      icon: 'error',
+      error: error.message,
     });
-    router.push({ name: "product-list" });
+    router.push({ name: 'product-list' });
   }
 });
 
-// Manejo de la selección de archivos
-const handleFileSelection = (file) => {
-  avatarFile.value = file;
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imagePreviewUrl.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-};
+async function loadGallery() {
+  loadingGallery.value = true;
+  const productId = route.params.id;
+  gallery.value = await productStore.fetchGallery(productId);
+  loadingGallery.value = false;
+}
 
-// Envío del formulario
-const handleSubmit = async () => {
-  loading.value = true;
+// --- Métodos de Galería ---
+async function handleGalleryUpload() {
+  if (!galleryFiles.value || galleryFiles.value.length === 0) return;
+  const productId = productForm.value.id;
   try {
-    await productStore.updateProduct(product.value, avatarFile.value);
-    $q.notify({
-      color: "positive",
-      message: "Producto actualizado con éxito.",
-      icon: "check_circle",
-    });
-    router.push({ name: "product-list" });
+    const newImages = await productStore.uploadGalleryImages(productId, galleryFiles.value);
+    gallery.value.push(...newImages); // Añadir nuevas imágenes a la lista
+    galleryFiles.value = [];
+    $q.notify({ color: 'positive', message: 'Imágenes subidas correctamente.' });
   } catch (error) {
-    console.error("Error al actualizar el producto:", error);
-    $q.notify({
-      color: "negative",
-      message:
-        "Error al actualizar el producto. " +
-        (error.message || "Por favor, intente de nuevo."),
-      icon: "error",
-    });
-  } finally {
-    loading.value = false;
+    $q.notify({ color: 'negative', message: 'Error al subir imágenes.', error });
   }
-};
+}
 
-// Observar cambios en el producto actual de la tienda
-watch(
-  () => productStore.currentProduct,
-  (newProduct) => {
-    if (newProduct) {
-      product.value = { ...newProduct };
+function handleDeleteImage(imageId) {
+  $q.dialog({
+    title: 'Confirmar',
+    message: '¿Estás seguro de eliminar esta imagen?',
+    cancel: true,
+  }).onOk(async () => {
+    try {
+      await productStore.deleteGalleryImage(imageId);
+      gallery.value = gallery.value.filter(img => img.id !== imageId); // Actualizar UI
+      $q.notify({ color: 'positive', message: 'Imagen eliminada.' });
+    } catch (error) {
+      $q.notify({ color: 'negative', message: 'Error al eliminar la imagen.', error });
     }
-  }
-);
-</script>
+  });
+}
 
-<style scoped>
-/* Estilos adicionales si son necesarios */
-</style>
+// --- Métodos del Formulario Principal ---
+const handleFileSelection = (file) => { avatarFile.value = file; };
+const triggerFileInput = () => { fileInputRef.value.pickFiles(); };
+
+async function onSubmit() {
+  try {
+    let newAvatarUrl = productForm.value.avatar_url;
+    if (avatarFile.value) {
+      newAvatarUrl = await productStore.uploadAvatarImage(avatarFile.value, productForm.value.id);
+    }
+    const productDataToUpdate = {
+      ...productForm.value,
+      avatar_url: newAvatarUrl,
+      category_id: productForm.value.category?.id,
+    };
+    delete productDataToUpdate.category;
+    await productStore.updateProduct(productDataToUpdate);
+    $q.notify({ color: 'positive', message: 'Producto actualizado.' });
+    router.push({ name: 'product-list' });
+  } catch (error) {
+    $q.notify({ color: 'negative', message: 'Error al actualizar el producto.', error });
+  }
+}
+</script>

@@ -6,7 +6,7 @@ export const useProductStore = defineStore('productStore', {
   state: () => ({
     products: [],
     categories: [],
-    selectedProduct: null,
+    currentProduct: null,
     loading: false,
     error: null,
   }),
@@ -73,6 +73,7 @@ export const useProductStore = defineStore('productStore', {
         }
       } catch (err) {
         this.error = err.message;
+        console.log(productId)
       } finally {
         this.loading = false;
       }
@@ -120,8 +121,8 @@ export const useProductStore = defineStore('productStore', {
         }
 
         // Asegurarse de actualizar también el producto seleccionado si es el mismo
-        if (this.selectedProduct && this.selectedProduct.id === id) {
-          this.selectedProduct = data;
+        if (this.currentProduct && this.currentProduct.id === id) {
+          this.currentProduct = data;
         }
 
       } catch (err) {
