@@ -18,7 +18,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue' // Importa ref, onBeforeUnmount
 import { useRouter } from 'vue-router'
-import { supabase } from 'boot/supabase'
+import { supabase } from 'src/config/supabase'
 import { useQuasar } from 'quasar'; // Importa useQuasar para notificaciones
 
 defineOptions({

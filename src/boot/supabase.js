@@ -1,57 +1,35 @@
-import { createClient } from "@supabase/supabase-js";
+// Importar las dependencias necesarias
+import { useAuthStore } from 'stores/storeAuth';
+import { supabase } from 'src/config/supabase';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
+// Acción: Inicializar autenticación Supabase y listeners
+export default async ({ app }) => {
+  const authStore = useAuthStore();
 
-/** Acción: Crear cliente Supabase singleton */
-const createSupabaseClient = () => {
-  // Verificar si ya existe una instancia
-  if (typeof window !== "undefined" && window.__supabaseClient) {
-    return window.__supabaseClient;
+  // Acción: Verificar sesión inicial
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    authStore.user = session.user;
+    await authStore.loadProfile();
   }
 
-  const client = createClient(supabaseUrl, supabaseKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      storageKey: `sb-${supabaseUrl}-auth-token`,
-      storage: typeof window !== "undefined" ? window.localStorage : null
-    }
-  });
-
+  // Acción: Listener de cambios de autenticación
   if (typeof window !== "undefined") {
-    window.__supabaseClient = client;
+    if (window.__supabaseAuthListener) {
+      window.__supabaseAuthListener.unsubscribe();
+    }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        authStore.user = session.user;
+        authStore.loadProfile();
+      } else if (event === 'SIGNED_OUT') {
+        authStore.user = null;
+        authStore.profile = null;
+      }
+    });
+    window.__supabaseAuthListener = subscription;
   }
 
-  return client;
-};
-
-/** Acción: Gestionar listener de autenticación */
-const setupAuthListener = (client) => {
-  if (typeof window === "undefined") return;
-
-  // Limpiar listener anterior si existe
-  if (window.__authListener) {
-    window.__authListener.unsubscribe();
-  }
-
-  // Establecer nuevo listener
-  const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
-    // Acción: Actualizar estado de autenticación
-    console.debug('[Auth] Estado:', event, session?.user?.email ?? 'sin sesión');
-  });
-
-  window.__authListener = subscription;
-};
-
-// Acción: Exportar cliente singleton
-export const supabase = createSupabaseClient();
-
-// Acción: Inicializar auth listener
-setupAuthListener(supabase);
-
-// Acción: Configurar boot para Quasar
-export default function ({ app }) {
-  // Disponible globalmente en la app
+  // Acción: Hacer supabase global si lo necesitas
   app.config.globalProperties.$supabase = supabase;
-}
+};
