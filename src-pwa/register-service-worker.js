@@ -1,4 +1,5 @@
 import { register } from 'register-service-worker'
+import { Notify } from 'quasar'
 
 // The ready(), registered(), cached(), updatefound() and updated()
 // events passes a ServiceWorkerRegistration instance in their arguments.
@@ -29,10 +30,30 @@ register(process.env.SERVICE_WORKER_FILE, {
 
   updated (/* registration */) {
     // console.log('New content is available; please refresh.')
+    Notify.create({
+      message: 'Nuevo contenido disponible, por favor refresque la aplicación.',
+      color: 'primary',
+      textColor: 'white',
+      icon: 'cloud_download',
+      closeBtn: 'Actualizar',
+      timeout: 10000,
+      onDismiss: () => {
+        window.location.reload(true)
+      }
+    })
   },
 
   offline () {
     // console.log('No internet connection found. App is running in offline mode.')
+    Notify.create({
+      message: 'No se ha encontrado conexión a Internet. La aplicación está funcionando en modo offline.',
+      color: 'primary',
+      textColor: 'white',
+      icon: 'signal_wifi_connected_no_internet_4',
+      closeBtn: 'Cerrar',
+      timeout: 10000
+
+    })
   },
 
   error (/* err */) {
