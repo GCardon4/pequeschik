@@ -1,0 +1,1 @@
+import{_ as n}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{i as o,o as t,t as a}from"./index-BB96JGY1.js";const r={};function s(l,e){return t(),o("div",null,[...e[0]||(e[0]=[a("h1",null,"Role Management Page",-1)])])}const f=n(r,[["render",s]]);export{f as default};

@@ -1,98 +1,77 @@
 <template>
-  <router-view />
-
-   <!-- Banner de instalación de PWA -->
-  <q-banner
-    v-if="showInstallPrompt"
-    class="bg-primary text-white q-py-md q-px-lg flex flex-center"
-    style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; border-top-left-radius: 8px; border-top-right-radius: 8px;"
-  >
-    <q-icon name="download_for_offline" size="md" class="q-mr-md" />
-    <span class="text-weight-bold">¡Instala App para mejor administración!</span>
-    <q-space />
-    <q-btn flat label="Instalar" @click="installPWA" class="text-white q-ml-md" />
-    <q-btn flat round icon="close" @click="showInstallPrompt = false" class="text-white q-ml-sm" />
-  </q-banner>
+  <q-layout view="lHh Lpr lFf">
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+    <!-- Banner de instalación de PWA -->
+    <q-banner
+      v-if="showInstallPrompt"
+      class="bg-primary text-white q-py-md q-px-lg flex flex-center"
+      style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; border-top-left-radius: 8px; border-top-right-radius: 8px;"
+    >
+      <q-icon name="download_for_offline" size="md" class="q-mr-md" />
+      <span class="text-weight-bold">¡Instala App para mejor administración!</span>
+      <q-space />
+      <q-btn flat label="Instalar" @click="installPwa" class="text-white q-ml-md" />
+      <q-btn flat round icon="close" @click="showInstallPrompt = false" class="text-white q-ml-sm" />
+    </q-banner>
+  </q-layout>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue' // Importa ref, onBeforeUnmount
-import { useRouter } from 'vue-router'
+// Acción: Importar dependencias principales
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { supabase } from 'src/config/supabase'
-import { useQuasar } from 'quasar'; // Importa useQuasar para notificaciones
+import { useAuthStore } from 'stores/storeAuth'
+import { useQuasar } from 'quasar'
 
-defineOptions({
-  name: 'App'
-});
 
-const router = useRouter();
-const $q = useQuasar(); // Instancia de Quasar para notificaciones
+const $q = useQuasar()
+const authStore = useAuthStore()
 
-const deferredPrompt = ref(null); // Guarda el evento 'beforeinstallprompt'
-const showInstallPrompt = ref(false); // Controla la visibilidad del banner
+// Acción: Definir variables reactivas para PWA
+const deferredPrompt = ref(null)
+const showInstallPrompt = ref(false)
 
+// Acción: Escuchar eventos de autenticación y PWA
 onMounted(() => {
-  // Lógica de autenticación de Supabase (ya existente)
+  // Acción: Escuchar cambios de autenticación para actualizar el store
   supabase.auth.onAuthStateChange((event, session) => {
-    if (!session) {
-      // Solo redirige si no estamos ya en la página de login
-      if (router.currentRoute.value.name !== 'login') {
-        router.push({ name: 'login' });
-      }
-    }
-    // Puedes añadir lógica para 'SIGNED_IN' si necesitas hacer algo específico al iniciar sesión.
-    // else if (event === 'SIGNED_IN' && router.currentRoute.value.name === 'login') {
-    //   router.push({ name: 'home' });
-    // }
-  });
-
-  // Lógica para detectar PWA instalable
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); // Evita que el navegador muestre su propio banner de instalación
-    deferredPrompt.value = e; // Guarda el evento para usarlo más tarde
-    showInstallPrompt.value = true; // Muestra tu banner personalizado
-    console.log('Evento beforeinstallprompt detectado. PWA es instalable.');
-  });
-
-  // Lógica para detectar cuando la PWA ya ha sido instalada
-  window.addEventListener('appinstalled', () => {
-    showInstallPrompt.value = false; // Oculta el banner si ya se instaló
-    deferredPrompt.value = null; // Limpia el evento
-    console.log('PWA instalada con éxito.');
-    $q.notify({ type: 'positive', message: '¡Secafé se ha instalado en tu dispositivo!' });
-  });
-});
-
-onBeforeUnmount(() => {
-  // Limpia los event listeners al desmontar el componente para evitar fugas de memoria
-  window.removeEventListener('beforeinstallprompt', () => {});
-  window.removeEventListener('appinstalled', () => {});
-});
-
-// Función para disparar la instalación de la PWA
-const installPWA = async () => {
-  if (deferredPrompt.value) {
-    deferredPrompt.value.prompt(); // Muestra el diálogo de instalación del navegador
-    const { outcome } = await deferredPrompt.value.userChoice; // Espera la respuesta del usuario
-
-    if (outcome === 'accepted') {
-      console.log('Usuario aceptó la instalación de la PWA.');
-      // El evento 'appinstalled' se encargará de ocultar el banner y notificar
+    if (session) {
+      authStore.user = session.user
+      authStore.loadProfile()
     } else {
-      console.log('Usuario canceló la instalación de la PWA.');
-      showInstallPrompt.value = false; // Oculta el banner si el usuario cancela
+      authStore.user = null
+      authStore.profile = null
     }
-    deferredPrompt.value = null; // El prompt solo se puede usar una vez
-  } else {
-    console.log('PWA no instalable o prompt ya fue disparado/usado.');
-    // Si no hay prompt diferido, el usuario ya instaló o el navegador no lo soporta.
-    // Para iOS, se debe guiar al usuario a "Añadir a pantalla de inicio".
-    $q.notify({
-      type: 'info',
-      message: 'Usa la opción "Añadir a pantalla de inicio" de tu navegador para instalar.',
-      position: 'top',
-      timeout: 3000
-    });
+    // No redirigir aquí, solo actualizar el estado
+  })
+
+  // Acción: Detectar si la PWA es instalable
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault()
+    deferredPrompt.value = e
+    showInstallPrompt.value = true
+  })
+
+  window.addEventListener('appinstalled', () => {
+    showInstallPrompt.value = false
+    deferredPrompt.value = null
+    $q.notify({ type: 'positive', message: '¡Secafé se ha instalado en tu dispositivo!' })
+  })
+})
+
+// Acción: Limpiar listeners al desmontar
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeinstallprompt', () => {})
+  window.removeEventListener('appinstalled', () => {})
+})
+
+// Acción: Instalar la PWA
+const installPwa = async () => {
+  if (deferredPrompt.value) {
+    deferredPrompt.value.prompt()
+    deferredPrompt.value = null
   }
-};
+}
 </script>

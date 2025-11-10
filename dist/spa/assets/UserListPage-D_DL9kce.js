@@ -1,0 +1,1 @@
+import{_ as r}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{i as t,o as s,t as o}from"./index-BB96JGY1.js";const n={};function a(c,e){return s(),t("div",null,[...e[0]||(e[0]=[o("h1",null,"User List Page",-1)])])}const f=r(n,[["render",a]]);export{f as default};
