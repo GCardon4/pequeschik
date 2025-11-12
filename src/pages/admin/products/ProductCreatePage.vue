@@ -5,10 +5,8 @@
 
       <q-card>
         <q-card-section>
-          <q-form @submit.prevent="handleSubmit">
-            <div class="row q-col-gutter-md">
-              <!-- Columna Izquierda: Detalles del Producto -->
-              <div class="col-xs-12 col-md-8">
+          <q-form @submit.prevent="handleSubmit" class="q-gutter-md">
+
                 <q-input
                   v-model="product.name"
                   label="Nombre del Producto"
@@ -16,73 +14,28 @@
                   :rules="[(val) => !!val || 'El nombre es requerido']"
                 />
 
-                <q-input
-                  v-model="product.reference"
-                  label="Referencia"
+                <q-select
+                  v-model="product.category"
+                  :options="categories"
+                  option-label="name"
+                  label="Categoría"
                   filled
-                  class="q-mt-md"
                 />
-
-                <!-- Input Avatar (usar handleFileSelection) -->
-                <q-file
-                  v-model="avatarFile"
-                  label="Avatar del Producto"
-                  filled
-                  accept="image/*"
-                  capture="camera"
-                  class="q-mt-md"
-                  style="max-width: 300px"
-                  @update:model-value="handleFileSelection"
-                />
-                <div v-if="imagePreviewUrl" class="q-mt-sm">
-                  <q-img :src="imagePreviewUrl" style="width:120px; height:120px; border-radius:4px;" />
+                <q-input v-model="product.subcategory" label="Subcategoría" filled />
+                <q-input v-model="product.sizes" label="Tallas" filled />
+                <div class="row q-gutter-md">
+                  <q-input v-model.number="product.price" label="Precio" type="number" filled prefix="COP $" class="col" />
+                  <q-input v-model.number="product.stock" label="Stock" type="number" filled class="col" />
                 </div>
 
-                <q-editor
-                  v-model="product.description"
-                  label="Descripción"
-                  filled
-                  class="q-mt-md"
-                  min-height="150px"
-                />
-              </div>
-
-              <!-- Columna Derecha: Categoría y Precios -->
-              <div class="col-xs-12 col-md-4">
-                <q-select
-                  v-model="product.category_id"
-                  :options="categoryOptions"
-                  label="Categoría"
-                  emit-value
-                  map-options
-                  filled
-                  :rules="[(val) => val !== null || 'La categoría es requerida']"
-                />
-
-                <q-input
-                  v-model.number="product.price"
-                  label="Precio"
-                  type="number"
-                  step="0.01"
-                  filled
-                  class="q-mt-md"
-                />
-
-                <q-input
-                  v-model.number="product.stock_quantity"
-                  label="Cantidad en Stock"
-                  type="number"
-                  filled
-                  class="q-mt-md"
-                />
-
-                <q-toggle
-                  v-model="product.is_active"
-                  label="Producto Activo"
-                  class="q-mt-md"
-                />
-              </div>
-            </div>
+                 <!-- Avatar (Imagen Principal) -->
+                <div class="text-subtitle1 q-mt-md">Imagen del Producto</div>
+                <div class="row items-center q-gutter-md">
+                  <q-file ref="fileInputRef" v-model="avatarFile" label="Seleccionar nueva imagen" accept="image/*" filled style="max-width: 300px" @update:model-value="handleFileSelection" />
+                  <q-avatar v-if="imagePreviewUrl" size="100px" class="cursor-pointer" @click="triggerFileInput">
+                    <q-img :src="imagePreviewUrl" ratio="1" />
+                  </q-avatar>
+                </div>
 
             <!-- Sección de Galería de Imágenes -->
             <div class="q-mt-xl">
@@ -132,6 +85,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useProductStore } from "src/stores/productStore";
+import { useCategoryStore } from "src/stores/categoryStore"
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 
@@ -139,6 +93,7 @@ import { useQuasar } from "quasar";
 const $q = useQuasar();
 const router = useRouter();
 const productStore = useProductStore();
+const categoryStore = useCategoryStore();
 
 // Estado del componente
 const product = ref({
@@ -159,7 +114,7 @@ const loading = ref(false);
 
 // Cargar categorías al montar el componente
 onMounted(async () => {
-  await productStore.fetchCategories();
+  await categoryStore.fetchCategories();
   categoryOptions.value = productStore.categories.map((cat) => ({
     label: cat.name,
     value: cat.id,

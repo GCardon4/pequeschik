@@ -25,7 +25,7 @@
           </div>
 
           <!-- Avatar (Imagen Principal) -->
-          <div class="text-subtitle1 q-mt-md">Avatar del Producto</div>
+          <div class="text-subtitle1 q-mt-md">Imagen del Producto</div>
           <div class="row items-center q-gutter-md">
             <q-file ref="fileInputRef" v-model="avatarFile" label="Seleccionar nueva imagen" accept="image/*" filled style="max-width: 300px" @update:model-value="handleFileSelection" />
             <q-avatar v-if="imagePreviewUrl" size="100px" class="cursor-pointer" @click="triggerFileInput">
