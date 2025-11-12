@@ -15,11 +15,14 @@
                 />
 
                 <q-select
-                  v-model="product.category"
+                  v-model="product.category_id"
                   :options="categories"
                   option-label="name"
+                  option-value="id"
                   label="Categoría"
                   filled
+                  emit-value
+                  map-options
                 />
                 <q-input v-model="product.subcategory" label="Subcategoría" filled />
                 <q-input v-model="product.sizes" label="Tallas" filled />
@@ -83,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useProductStore } from "src/stores/productStore";
 import { useCategoryStore } from "src/stores/categoryStore"
 import { useRouter } from "vue-router";
@@ -94,16 +97,18 @@ const $q = useQuasar();
 const router = useRouter();
 const productStore = useProductStore();
 const categoryStore = useCategoryStore();
+const categories = computed(() => categoryStore.categories || []);
 
 // Estado del componente
 const product = ref({
   name: "",
   reference: "",
-  description: "",
   category_id: null,
+  subcategory: "",
+  sizes: "",
+  description: "",
   price: 0,
-  stock_quantity: 0,
-  is_active: true,
+  stock: 1,
 });
 const avatarFile = ref(null);
 const imagePreviewUrl = ref(null);
@@ -169,7 +174,7 @@ const handleSubmit = async () => {
       icon: "check_circle",
     });
 
-    router.push({ name: "product-list" });
+    router.push({ name: "admin-dashboard" });
   } catch (error) {
     console.error("Error al crear el producto:", error);
     $q.notify({
