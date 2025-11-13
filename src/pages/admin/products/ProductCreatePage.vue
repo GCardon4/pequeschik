@@ -13,6 +13,8 @@
                   filled
                   :rules="[(val) => !!val || 'El nombre es requerido']"
                 />
+                <q-input v-model="productForm.reference" label="Referencia" filled />
+                <q-input v-model="productForm.description" label="Descripcion" filled />
 
                 <q-select
                   v-model="product.category_id"
@@ -38,6 +40,7 @@
                   <q-avatar v-if="imagePreviewUrl" size="100px" class="cursor-pointer" @click="triggerFileInput">
                     <q-img :src="imagePreviewUrl" ratio="1" />
                   </q-avatar>
+                  
                 </div>
 
             <!-- Sección de Galería de Imágenes -->
@@ -111,6 +114,7 @@ const product = ref({
   stock: 1,
 });
 const avatarFile = ref(null);
+const fileInputRef = ref(null);
 const imagePreviewUrl = ref(null);
 const galleryFiles = ref([]);
 const galleryPreviewUrls = ref([]);
@@ -127,19 +131,10 @@ onMounted(async () => {
 });
 
 // Manejo de la selección de la imagen principal
-const handleFileSelection = (file) => {
-  // Acción: Seleccionar Avatar
-  avatarFile.value = file;
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imagePreviewUrl.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  } else {
-    imagePreviewUrl.value = null;
-  }
-};
+
+// --- Métodos del Formulario Principal ---
+const handleFileSelection = (file) => { avatarFile.value = file; };
+const triggerFileInput = () => { fileInputRef.value.pickFiles(); };
 
 // Manejo de la selección de imágenes de la galería
 const handleGallerySelection = (files) => {
