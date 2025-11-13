@@ -13,8 +13,8 @@
                   filled
                   :rules="[(val) => !!val || 'El nombre es requerido']"
                 />
-                <q-input v-model="productForm.reference" label="Referencia" filled />
-                <q-input v-model="productForm.description" label="Descripcion" filled />
+                <q-input v-model="product.reference" label="Referencia" filled />
+                <q-input v-model="product.description" label="Descripcion" filled />
 
                 <q-select
                   v-model="product.category_id"
@@ -157,9 +157,16 @@ const handleGallerySelection = (files) => {
 const handleSubmit = async () => {
   loading.value = true;
   try {
+    let newAvatarUrl = null;
+
+    // Subir avatar si hay archivo
+    if (avatarFile.value) {
+      newAvatarUrl = await productStore.uploadAvatarImage(avatarFile.value);
+    }
+
+    // Crear el producto con la URL correcta del avatar
     await productStore.createProduct(
-      product.value,
-      avatarFile.value,
+      { ...product.value, avatar_url: newAvatarUrl },
       galleryFiles.value
     );
 
@@ -183,6 +190,8 @@ const handleSubmit = async () => {
     loading.value = false;
   }
 };
+
+
 </script>
 
 <style scoped>
